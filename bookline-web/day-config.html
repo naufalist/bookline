@@ -12,15 +12,15 @@
 <h2>Appointment Day Configs</h2>
 
 <form id="config-form">
-    <!-- <label>
-        Config ID (leave it blank while adding new config)
-    </label> -->
     <input type="hidden" id="config-id" readonly />
     <label>
         Date (yyyy-MM-dd): <input type="date" id="config-date" required />
     </label>
     <label>
         Max Appointments: <input type="number" id="config-max" value="1" required />
+    </label>
+    <label>
+        Is Holiday? <input type="checkbox" id="config-holiday" />
     </label>
     <button type="submit">Save</button>
     <button type="button" onclick="resetForm()">Reset</button>
@@ -31,11 +31,12 @@
         <tr>
             <th>Date</th>
             <th>Max</th>
+            <th>Holiday</th>
             <th>Actions</th>
         </tr>
     </thead>
     <tbody id="config-table-body">
-        <tr><td colspan="3">Loading...</td></tr>
+        <tr><td colspan="4">Loading...</td></tr>
     </tbody>
 </table>
 
@@ -48,8 +49,9 @@
         const id = document.getElementById("config-id").value;
         const date = document.getElementById("config-date").value;
         const max = document.getElementById("config-max").value;
+        const isHoliday = document.getElementById("config-holiday").checked;
 
-        const body = JSON.stringify({ date, maxAppointments: parseInt(max) });
+        const body = JSON.stringify({ date, maxAppointments: parseInt(max), isHoliday });
 
         const method = id ? "PATCH" : "POST";
         const url = id ? `${apiUrl}/${id}` : apiUrl;
@@ -79,7 +81,7 @@
 
     async function loadConfigs() {
         const table = document.getElementById("config-table-body");
-        table.innerHTML = "<tr><td colspan='3'>Loading...</td></tr>";
+        table.innerHTML = "<tr><td colspan='4'>Loading...</td></tr>";
 
         try {
             const res = await fetch(apiUrl);
@@ -87,7 +89,7 @@
 
             const data = result.data;
             if (!data || data.length === 0) {
-                table.innerHTML = "<tr><td colspan='3'>No configs found</td></tr>";
+                table.innerHTML = "<tr><td colspan='4'>No configs found</td></tr>";
                 return;
             }
 
@@ -98,8 +100,9 @@
                 tr.innerHTML = `
                     <td>${config.date}</td>
                     <td>${config.maxAppointments}</td>
+                    <td>${config.isHoliday ? "Yes" : "No"}</td>
                     <td>
-                        <button onclick="editConfig('${config.id}', '${config.date}', ${config.maxAppointments})">Edit</button>
+                        <button onclick="editConfig('${config.id}', '${config.date}', ${config.maxAppointments}, ${config.isHoliday})">Edit</button>
                         <button onclick="deleteConfig('${config.id}')">Delete</button>
                     </td>
                 `;
@@ -108,14 +111,15 @@
             }
         } catch (err) {
             console.error(err);
-            table.innerHTML = "<tr><td colspan='3'>Error loading configs</td></tr>";
+            table.innerHTML = "<tr><td colspan='4'>Error loading configs</td></tr>";
         }
     }
 
-    function editConfig(id, date, max) {
+    function editConfig(id, date, max, isHoliday) {
         document.getElementById("config-id").value = id;
         document.getElementById("config-date").value = date;
         document.getElementById("config-max").value = max;
+        document.getElementById("config-holiday").checked = isHoliday;
     }
 
     async function deleteConfig(id) {
