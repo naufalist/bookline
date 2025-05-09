@@ -36,7 +36,7 @@ namespace Bookline.Api
             });
 
             services.AddDbContext<AppDbContext>(options =>
-                options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseNpgsql(Configuration["ConnectionStrings:DefaultConnection"]));
 
             services.AddSwaggerGen(c =>
             {
