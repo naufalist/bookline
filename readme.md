@@ -50,6 +50,22 @@ git clone https://github.com/naufalist/bookline.git
 cd bookline
 ```
 
+### Using PostgreSQL via Docker (for local development)
+
+If you want to run a local PostgreSQL instance using Docker, you could use the provided configuration:
+
+```bash
+cd bookline-infra/postgresql
+docker-compose up -d
+
+### Initialize Schema Manually
+
+After running the PostgreSQL container via Docker, you could manually execute the schema creation script if needed:
+
+```bash
+# Make sure the container is running
+docker exec -i bookline_postgres psql -U $POSTGRES_USER -d $POSTGRES_DB < init.sql
+
 ### Backend API
 
 1. Navigate to `bookline-api/Bookline.Api`
