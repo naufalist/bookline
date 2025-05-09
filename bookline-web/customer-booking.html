@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <title>Book Appointment</title>
+    <link rel="stylesheet" href="https://classless.de/classless.css">
+    <link rel="stylesheet" href="https://classless.de/addons/themes.css">
+    <script src="api-constants.js"></script>
+</head>
+<body>
+    <h2>Book Appointment</h2>
+
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
+    <input type="date" id="date" />
+    <button onclick="book()">Book</button>
+
+    <p id="result"></p>
+
+    <script>
+        async function book() {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const date = document.getElementById("date").value;
+
+            const response = await fetch(API_ENDPOINTS.appointments, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password, date })
+            });
+
+            const result = await response.json();
+
+            if (result.data && result.data.token) {
+                document.getElementById("result").innerText =
+                    `Booking success! Token: ${result.data.token}, Date: ${result.data.date}`;
+            } else {
+                document.getElementById("result").innerText = result.message || "Booking failed";
+            }
+        }
+    </script>
+</body>
+</html>

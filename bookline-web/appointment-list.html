@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <title>Appointments List</title>
+    <link rel="stylesheet" href="https://classless.de/classless.css">
+    <link rel="stylesheet" href="https://classless.de/addons/themes.css">
+    <script src="api-constants.js"></script>
+</head>
+<body>
+    <h2 id="date-label">Appointments</h2>
+
+    <input type="date" id="appointment-date" />
+    <button onclick="loadAppointments()">Load Appointments</button>
+
+    <table border="1" cellpadding="5" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Date</th>
+                <th>Token</th>
+            </tr>
+        </thead>
+        <tbody id="appointments-body">
+            <tr><td colspan="4">No data loaded</td></tr>
+        </tbody>
+    </table>
+
+    <script>
+        async function loadAppointments() {
+            const dateInput = document.getElementById("appointment-date");
+            const selectedDate = dateInput.value;
+            const tableBody = document.getElementById("appointments-body");
+            const dateLabel = document.getElementById("date-label");
+
+            if (!selectedDate) {
+                alert("Please select a date first.");
+                return;
+            }
+
+            dateLabel.textContent = `Appointments for ${selectedDate}`;
+
+            try {
+                const response = await fetch(API_ENDPOINTS.appointmentsByDate(selectedDate));
+                const result = await response.json();
+
+                const data = result.data;
+
+                if (!data || data.length === 0) {
+                    tableBody.innerHTML = "<tr><td colspan='4'>No appointments found.</td></tr>";
+                    return;
+                }
+
+                let rows = "";
+                for (let appt of data) {
+                    rows += `<tr>
+                        <td>${appt.customer.fullName || "-"}</td>
+                        <td>${appt.customer.email || "-"}</td>
+                        <td>${appt.date}</td>
+                        <td>${appt.token}</td>
+                    </tr>`;
+                }
+
+                tableBody.innerHTML = rows;
+            } catch (err) {
+                console.error(err);
+                tableBody.innerHTML = "<tr><td colspan='4'>Error loading data</td></tr>";
+            }
+        }
+    </script>
+</body>
+</html>

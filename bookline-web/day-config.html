@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <title>Appointment Day Configs</title>
+    <link rel="stylesheet" href="https://classless.de/classless.css">
+    <link rel="stylesheet" href="https://classless.de/addons/themes.css">
+    <script src="api-constants.js"></script>
+</head>
+<body>
+
+<h2>Appointment Day Configs</h2>
+
+<form id="config-form">
+    <!-- <label>
+        Config ID (leave it blank while adding new config)
+    </label> -->
+    <input type="hidden" id="config-id" readonly />
+    <label>
+        Date (yyyy-MM-dd): <input type="date" id="config-date" required />
+    </label>
+    <label>
+        Max Appointments: <input type="number" id="config-max" value="1" required />
+    </label>
+    <button type="submit">Save</button>
+    <button type="button" onclick="resetForm()">Reset</button>
+</form>
+
+<table>
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Max</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="config-table-body">
+        <tr><td colspan="3">Loading...</td></tr>
+    </tbody>
+</table>
+
+<script>
+    const apiUrl = API_ENDPOINTS.dayConfigs;
+
+    document.getElementById("config-form").addEventListener("submit", async function(e) {
+        e.preventDefault();
+
+        const id = document.getElementById("config-id").value;
+        const date = document.getElementById("config-date").value;
+        const max = document.getElementById("config-max").value;
+
+        const body = JSON.stringify({ date, maxAppointments: parseInt(max) });
+
+        const method = id ? "PATCH" : "POST";
+        const url = id ? `${apiUrl}/${id}` : apiUrl;
+
+        try {
+            const res = await fetch(url, {
+                method: method,
+                headers: { "Content-Type": "application/json" },
+                body
+            });
+
+            const result = await res.json();
+            if (!res.ok) {
+                alert(result.message || "Failed to save config");
+                return;
+            } else {
+                alert(result.message || "Success");
+            }
+
+            resetForm();
+            loadConfigs();
+        } catch (err) {
+            alert("Error saving config");
+            console.error(err);
+        }
+    });
+
+    async function loadConfigs() {
+        const table = document.getElementById("config-table-body");
+        table.innerHTML = "<tr><td colspan='3'>Loading...</td></tr>";
+
+        try {
+            const res = await fetch(apiUrl);
+            const result = await res.json();
+
+            const data = result.data;
+            if (!data || data.length === 0) {
+                table.innerHTML = "<tr><td colspan='3'>No configs found</td></tr>";
+                return;
+            }
+
+            table.innerHTML = "";
+            for (const config of data) {
+                const tr = document.createElement("tr");
+
+                tr.innerHTML = `
+                    <td>${config.date}</td>
+                    <td>${config.maxAppointments}</td>
+                    <td>
+                        <button onclick="editConfig('${config.id}', '${config.date}', ${config.maxAppointments})">Edit</button>
+                        <button onclick="deleteConfig('${config.id}')">Delete</button>
+                    </td>
+                `;
+
+                table.appendChild(tr);
+            }
+        } catch (err) {
+            console.error(err);
+            table.innerHTML = "<tr><td colspan='3'>Error loading configs</td></tr>";
+        }
+    }
+
+    function editConfig(id, date, max) {
+        document.getElementById("config-id").value = id;
+        document.getElementById("config-date").value = date;
+        document.getElementById("config-max").value = max;
+    }
+
+    async function deleteConfig(id) {
+        if (!confirm("Are you sure to delete this config?")) return;
+
+        try {
+            const res = await fetch(`${apiUrl}/${id}`, { method: "DELETE" });
+            const result = await res.json();
+
+            if (!res.ok) {
+                alert(result.message || "Delete failed");
+                return;
+            }
+
+            loadConfigs();
+        } catch (err) {
+            alert("Error deleting config");
+            console.error(err);
+        }
+    }
+
+    function resetForm() {
+        document.getElementById("config-form").reset();
+        document.getElementById("config-id").value = "";
+    }
+
+    loadConfigs();
+</script>
+
+</body>
+</html>

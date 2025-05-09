@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <title>Customer Registration</title>
+    <link rel="stylesheet" href="https://classless.de/classless.css">
+    <link rel="stylesheet" href="https://classless.de/addons/themes.css">
+    <script src="api-constants.js"></script>
+</head>
+<body>
+    <h2>Customer Registration</h2>
+
+    <input type="text" id="fullName" placeholder="Full Name" />
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
+    <button onclick="register()">Register</button>
+
+    <p id="result"></p>
+
+    <script>
+        async function register() {
+            const fullName = document.getElementById("fullName").value;
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            const response = await fetch(API_ENDPOINTS.customerRegister, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ fullName, email, password })
+            });
+
+            const result = await response.json();
+            document.getElementById("result").innerText = result.message || "Registered!";
+        }
+    </script>
+</body>
+</html>
