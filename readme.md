@@ -20,6 +20,8 @@
 
 ## Note
 
+- __2025-05-26__  
+  For some reason, I have disabled the Azure hosting. Please run the project locally if you would like to view both the frontend and the backend API.
 - __2025-05-09__  
   This project is still under active development. Agency-side authentication and admin features are not implemented yet. Public-facing endpoints such as `GET /api/appointments` do not support pagination or query limits, which may impact scalability. For more details, please refer to the Known Limitations section below.
 
@@ -149,7 +151,7 @@ Token format: `BL001` through `BL099` depending on available slots per day.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
----t
+---
 
 ## Contact
 
